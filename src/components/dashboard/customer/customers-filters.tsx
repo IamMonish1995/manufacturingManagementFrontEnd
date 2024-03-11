@@ -10,13 +10,13 @@ export function CustomersFilters(): React.JSX.Element {
       <OutlinedInput
         defaultValue=""
         fullWidth
-        placeholder="Search customer"
+        placeholder="Search Design Code"
         startAdornment={
           <InputAdornment position="start">
             <MagnifyingGlassIcon fontSize="var(--icon-fontSize-md)" />
           </InputAdornment>
         }
-        sx={{ maxWidth: '500px' }}
+        sx={{ maxWidth: '350px' }}
       />
     </Card>
   );

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { getcurruntstock } from '@/request/curruntStock';
 import { getallsizes } from '@/request/sizes';
+import { Button } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -36,6 +37,7 @@ interface CustomersTableProps {
   page?: number;
   rows?: Customer[];
   rowsPerPage?: number;
+  curruntStock : any
 }
 
 export function CustomersTable({
@@ -43,18 +45,15 @@ export function CustomersTable({
   rows = [],
   page = 0,
   rowsPerPage = 0,
+  curruntStock = [],
 }: CustomersTableProps): React.JSX.Element {
   const [sizes, setSizes] = React.useState([]);
-  const [curruntStock, setCurruntStock] = React.useState([]);
 
   React.useEffect(() => {
     getallsizes().then((res) => {
       setSizes(res.result);
     });
-    getcurruntstock().then((res) => {
-      console.log(res.result);
-      setCurruntStock(res.result.items);
-    });
+    
   }, []);
   return (
     <Card>
@@ -62,14 +61,14 @@ export function CustomersTable({
         <Table sx={{ minWidth: '800px' }}>
           <TableHead>
             <TableRow>
-              <TableCell>Item Code</TableCell>
+              <TableCell>Design Code</TableCell>
               {sizes && sizes.map((item: any, key) => <TableCell key={key}>{item?.name}</TableCell>)}
               <TableCell>Total</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {curruntStock &&
-              curruntStock?.map((row: any, key) => {
+              rows?.map((row: any, key: React.Key | null | undefined) => {
                 return (
                   <TableRow hover key={key}>
                     <TableCell>
@@ -82,7 +81,18 @@ export function CustomersTable({
                   </TableRow>
                 );
               })}
-            <TableCell>Item Code</TableCell>
+            <TableRow>
+              <TableCell>Grand Total : {curruntStock.grantTotal}</TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell>
+                <Button>Print</Button>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </Box>
