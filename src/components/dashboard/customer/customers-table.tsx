@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
+import { getcurruntstock } from '@/request/curruntStock';
+import { getallsizes } from '@/request/sizes';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -15,8 +16,6 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import dayjs from 'dayjs';
-
-import { useSelection } from '@/hooks/use-selection';
 
 function noop(): void {
   // do nothing
@@ -45,74 +44,45 @@ export function CustomersTable({
   page = 0,
   rowsPerPage = 0,
 }: CustomersTableProps): React.JSX.Element {
-  const rowIds = React.useMemo(() => {
-    return rows.map((customer) => customer.id);
-  }, [rows]);
+  const [sizes, setSizes] = React.useState([]);
+  const [curruntStock, setCurruntStock] = React.useState([]);
 
-  const { selectAll, deselectAll, selectOne, deselectOne, selected } = useSelection(rowIds);
-
-  const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
-  const selectedAll = rows.length > 0 && selected?.size === rows.length;
-
+  React.useEffect(() => {
+    getallsizes().then((res) => {
+      setSizes(res.result);
+    });
+    getcurruntstock().then((res) => {
+      console.log(res.result);
+      setCurruntStock(res.result.items);
+    });
+  }, []);
   return (
     <Card>
       <Box sx={{ overflowX: 'auto' }}>
         <Table sx={{ minWidth: '800px' }}>
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  checked={selectedAll}
-                  indeterminate={selectedSome}
-                  onChange={(event) => {
-                    if (event.target.checked) {
-                      selectAll();
-                    } else {
-                      deselectAll();
-                    }
-                  }}
-                />
-              </TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Signed Up</TableCell>
+              <TableCell>Item Code</TableCell>
+              {sizes && sizes.map((item: any, key) => <TableCell key={key}>{item?.name}</TableCell>)}
+              <TableCell>Total</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => {
-              const isSelected = selected?.has(row.id);
+            {curruntStock &&
+              curruntStock?.map((row: any, key) => {
+                return (
+                  <TableRow hover key={key}>
+                    <TableCell>
+                      <Typography variant="subtitle2">{row?.item?.itemcode}</Typography>
+                    </TableCell>
 
-              return (
-                <TableRow hover key={row.id} selected={isSelected}>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={(event) => {
-                        if (event.target.checked) {
-                          selectOne(row.id);
-                        } else {
-                          deselectOne(row.id);
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
-                      <Avatar src={row.avatar} />
-                      <Typography variant="subtitle2">{row.name}</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>{row.email}</TableCell>
-                  <TableCell>
-                    {row.address.city}, {row.address.state}, {row.address.country}
-                  </TableCell>
-                  <TableCell>{row.phone}</TableCell>
-                  <TableCell>{dayjs(row.createdAt).format('MMM D, YYYY')}</TableCell>
-                </TableRow>
-              );
-            })}
+                    {row?.sizes &&
+                      row?.sizes?.map((item: any, key: number) => <TableCell key={key}>{item?.qty}</TableCell>)}
+                    <TableCell>{row?.totalqty}</TableCell>
+                  </TableRow>
+                );
+              })}
+            <TableCell>Item Code</TableCell>
           </TableBody>
         </Table>
       </Box>
